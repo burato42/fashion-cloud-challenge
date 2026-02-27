@@ -5,8 +5,11 @@ from itertools import groupby
 from operator import itemgetter
 from typing import Any
 
+Mapping = dict[str, str | dict[str, str]]
+GroupedCatalog = dict[str, str | dict[str, str | list[dict[str, str]]]]
 
-def process_price_catalog(price_catalog_file, mapping):
+
+def process_price_catalog(price_catalog_file: str, mapping) -> list[dict[str, str]]:
     result = []
     with open(price_catalog_file) as file:
         catalog = csv.DictReader(file, delimiter=";")
@@ -37,7 +40,7 @@ def process_price_catalog(price_catalog_file, mapping):
     return result
 
 
-def get_mapping(mapping_file):
+def get_mapping(mapping_file: str) -> Mapping:
     mapping: dict[str, Any] = dict()
 
     with open(mapping_file) as file:
@@ -58,7 +61,7 @@ def get_mapping(mapping_file):
     return mapping
 
 
-def group_price_catalog(reformatted_catalog):
+def group_price_catalog(reformatted_catalog) -> GroupedCatalog:
     grouped = {}
 
     get_article_number = itemgetter("article_number")
@@ -87,12 +90,12 @@ def group_price_catalog(reformatted_catalog):
     return {"catalog": grouped}
 
 
-def dump_to_json(data, output_file):
+def dump_to_json(data: GroupedCatalog, output_file: str):
     with open(output_file, "w") as f:
         json.dump(data, f)
 
 
-def transform(pricat, mapping, output):
+def transform(pricat: str, mapping: str, output: str):
     catalog_mapping = get_mapping(mapping)
     reformated = process_price_catalog(pricat, catalog_mapping)
     aggregated = group_price_catalog(reformated)
