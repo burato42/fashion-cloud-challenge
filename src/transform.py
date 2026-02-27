@@ -3,10 +3,11 @@ import csv
 import json
 from itertools import groupby
 from operator import itemgetter
-from typing import Any
 
-Mapping = dict[str, str | dict[str, str]]
-GroupedCatalog = dict[str, str | dict[str, str | list[dict[str, str]]]]
+
+# TODO Mapping type might be incorrect
+Mapping = dict[str, dict[str ,str | dict[str, str]]]
+GroupedCatalog = dict[str, dict[str, str | list[dict[str, str | list[dict[str, str]]]]]]
 
 
 def process_price_catalog(price_catalog_file: str, mapping) -> list[dict[str, str]]:
@@ -41,7 +42,7 @@ def process_price_catalog(price_catalog_file: str, mapping) -> list[dict[str, st
 
 
 def get_mapping(mapping_file: str) -> Mapping:
-    mapping: dict[str, Any] = dict()
+    mapping: Mapping = dict()
 
     with open(mapping_file) as file:
         mappings = csv.reader(file, delimiter=";")
