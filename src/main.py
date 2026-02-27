@@ -1,5 +1,7 @@
 import csv
-from pprint import pprint
+import json
+from itertools import groupby
+from operator import itemgetter
 from typing import Any
 
 PRICE_CATALOG_FILE = "data/pricat_1.csv"
@@ -42,7 +44,6 @@ def get_mapping():
     with open(MAPPING_FILE) as file:
         mappings = csv.reader(file, delimiter=';')
         header = next(mappings)
-        print(header)
 
         for row in mappings:
             source, destination, source_type, destination_type = row
@@ -57,15 +58,43 @@ def get_mapping():
     return mapping 
             
 
+def group_price_catalog(reformatted_catalog):
+    grouped = {}
+
+    get_article_number = itemgetter("article_number")
+    reformatted_catalog.sort(key=get_article_number)
+    grouped_data = {}
+    for article_number, group in groupby(reformatted_catalog, key=get_article_number):
+        grouped_data[article_number] = list(group)
+
+    for article_number, variations in grouped_data.items():
+        for variation in variations:
+            if "brand" not in grouped:
+                grouped["brand"] = variation["brand"]
+            if "articles" not in grouped:
+                grouped["articles"] = []
+
+        grouped_variations = []
+        for record in variations:
+            del record["brand"] # remove the brand (as it's required in the task) and keep other fields 
+            grouped_variations.append(record)
+
+        variation = {"article_number": article_number, "variations": grouped_variations}
+        grouped["articles"].append(variation)
+
+    return {"catalog": grouped}
 
 
-        
+def dump_to_json(data):
+    with open("output.json", "w") as f:
+        json.dump(data, f)
+
 
 def main():
     catalog_mapping = get_mapping()
-    # print(catalog_mapping)
     reformated = process_price_catalog(catalog_mapping)
-    print(len(reformated))
+    aggregated = group_price_catalog(reformated)
+    dump_to_json(aggregated)
     
     
 if __name__ == "__main__":
