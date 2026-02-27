@@ -13,6 +13,9 @@ Not required.
 Extra libraries are not needed until you want to run tests. Tests are written using pytest, therefore this library will be required.
 
 ## Run the tests
+```commandline
+python -m pytest
+```
 
 ## Running the program
 ```commandline
